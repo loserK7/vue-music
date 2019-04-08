@@ -4,8 +4,8 @@ import router from './router'
 import { post, fetch, patch, put } from './request'
 import VueLazyload from 'vue-lazyload'
 
+import 'lib-flexible/flexible.js' // 适配库
 import './common/css/reset.css'
-
 Vue.use(VueLazyload, {
   loading: require('./common/img/default.png')
 })

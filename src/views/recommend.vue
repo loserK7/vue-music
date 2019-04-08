@@ -20,7 +20,7 @@
 
             <div class="icon">
               <p class="play-count">
-                <i class="fa fa-headphones"></i>
+                <i class="iconfont icon-play"></i>
                 {{Math.floor(item.playCount / 10000) }}万
               </p>
               <img v-lazy="item.picUrl" alt="" />
@@ -255,10 +255,17 @@ export default {
 
       .play-count {
         position: absolute;
-        top: 5px;
-        right: 8px;
+        top: 1px;
+        right: 5px;
         font-size: 10px;
         color: #f1f1f1;
+        line-height: 16px;
+
+        i {
+          font-size: 12px;
+          position: relative;
+          left: 3px;
+        }
       }
 
       img {
