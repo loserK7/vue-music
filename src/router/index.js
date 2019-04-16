@@ -4,6 +4,11 @@ import Recommend from '@/views/recommend'
 import Rank from '@/views/rank'
 import Singer from '@/views/singer'
 
+const MusicList = (resolve) => {
+  import('@/views/musicList').then((module) => {
+    resolve(module)
+  })
+}
 Vue.use(Router)
 
 export default new Router({
@@ -16,17 +21,38 @@ export default new Router({
     {
       path: '/recommend',
       name: 'recommend',
-      component: Recommend
+      component: Recommend,
+      children: [
+        {
+          path: ':id',
+          name: 'musicList',
+          component: MusicList
+        }
+      ]
     },
     {
       path: '/rank',
       name: 'rank',
-      component: Rank
+      component: Rank,
+      children: [
+        {
+          path: ':id',
+          name: 'musicList',
+          component: MusicList
+        }
+      ]
     },
     {
       path: '/singer',
       name: 'singer',
-      component: Singer
+      component: Singer,
+      children: [
+        {
+          path: ':id',
+          name: 'musicList',
+          component: MusicList
+        }
+      ]
     }
   ]
 })

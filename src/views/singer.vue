@@ -1,25 +1,27 @@
 <template>
   <div class="singer-page" ref="singerPage">
-    <div>
-      <ul class="singer-list" v-if="singers" ref="singerList">
-        <li class="list-item" v-for="(item, key) in singers" :key="key" ref="singerItem">
-          <div class="item-title">
-            {{ item.title }}
-          </div>
-          <ul class="singer-wrapper">
-            <li class="singer" v-for="(singer, key) in item.items" :key="key">
-              <div class="singer-img">
-                <img v-lazy="singer.avatar" alt="">
-              </div>
-              <div class="singer-name">
-                <span>
-                  {{singer.name}}
-                </span>
-              </div>
-            </li>
-          </ul>
-        </li>
-      </ul>
+    <div class="singer-contend" ref=singerContend>
+      <div>
+        <ul class="singer-list" v-if="singers" ref="singerList">
+          <li class="list-item" v-for="(item, key) in singers" :key="key" ref="singerItem" >
+            <div class="item-title">
+              {{ item.title }}
+            </div>
+            <ul class="singer-wrapper">
+              <li class="singer" v-for="(singer, key) in item.items" :key="key" @click="singerDetail(singer)">
+                <div class="singer-img">
+                  <img v-lazy="singer.avatar" alt="">
+                </div>
+                <div class="singer-name">
+                  <span>
+                    {{singer.name}}
+                  </span>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="shortcut-bar" @touchstart="onShortcutStart" @touchmove.stop.prevent="onShortcutMove">
       <ul>
@@ -28,6 +30,7 @@
         </li>
       </ul>
     </div>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -107,8 +110,13 @@ export default {
         })
       })
     },
+    singerDetail (item) {
+      this.$store.commit('UPDATE_MUSIC_LIST', {})
+      this.$router.push({ path: `/singer/${item.id}` })
+      console.log(item)
+    },
     initScroll () {
-      this.scroll = new BScroll(this.$refs.singerPage, {
+      this.scroll = new BScroll(this.$refs.singerContend, {
         probeType: 3
       })
       this.scroll.on('scroll', (pos) => {
@@ -134,7 +142,6 @@ export default {
       this.touch.y1 = firstTouch.pageY
       this.touch.anchorIndex = anchorIndex
       this._scrollTo(anchorIndex)
-      console.log(anchorIndex)
     },
     onShortcutMove (e) {
     },
@@ -203,6 +210,12 @@ export default {
   top: 44px;
   width: 100%;
   bottom: 0;
+
+  .singer-contend {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
 
   .singer-list {
     .list-item {

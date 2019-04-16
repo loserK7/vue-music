@@ -1,48 +1,50 @@
 <template>
   <div class="recommend-page" ref="recommendPage">
-    <div>
-      <div class="slider-wrapper">
-        <div class="slider" ref="slider">
-          <div class="slider-group" ref="sliderGroup">
-            <div v-for="(item, key) in bannerList" :key="key">
-              <img :src="item.imageUrl" alt="" />
+    <div ref="recommendContend" class="recoment-contend">
+      <div>
+        <div class="slider-wrapper">
+          <div class="slider" ref="slider">
+            <div class="slider-group" ref="sliderGroup">
+              <div v-for="(item, key) in bannerList" :key="key">
+                <img :src="item.imageUrl" alt="" />
+              </div>
             </div>
-          </div>
-          <div class="dots">
-            <span class="dot" v-for="(dot, index) in dots" :key="index" :class="{ active: currentIndex === index }">
-            </span>
+            <div class="dots">
+              <span class="dot" v-for="(dot, index) in dots" :key="index" :class="{ active: currentIndex === index }">
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="recommend-list" ref="recommendList">
-        <ul class="list-wrapper" ref="listWrapper">
-          <li class="list-item" v-for="(item, index) in recommendMusicList" :key="index">
-
-            <div class="icon">
-              <p class="play-count">
-                <i class="iconfont icon-play"></i>
-                {{Math.floor(item.playCount / 10000) }}万
-              </p>
-              <img v-lazy="item.picUrl" alt="" />
-            </div>
-            <div class="text">
-              <p class="name">{{ item.name }}</p>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div class="decorate">
-
+        <div class="recommend-list" ref="recommendList">
+          <ul class="list-wrapper" ref="listWrapper">
+            <li class="list-item" v-for="(item, index) in recommendMusicList" :key="index" @click="detail(item)">
+              <div class="icon">
+                <p class="play-count">
+                  <i class="iconfont icon-play"></i>
+                  {{Math.floor(item.playCount / 10000) }}万
+                </p>
+                <img v-lazy="item.picUrl" alt="" />
+              </div>
+              <div class="text">
+                <p class="name">{{ item.name }}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="decorate">
+        </div>
       </div>
     </div>
-
+    <router-view></router-view>
   </div>
+
 </template>
 
 <script>
 import { addClass } from 'common/js/common.js'
 import BScroll from 'better-scroll'
 export default {
+  name: 'recommend',
   data () {
     return {
       bannerList: [],
@@ -53,6 +55,10 @@ export default {
       autoPlay: true,
       interval: 4000
     }
+  },
+  beforeRouteUpdate (to, from, next) {
+    this.refresh()
+    next()
   },
   mounted () {
     window.addEventListener('resize', () => {
@@ -76,7 +82,6 @@ export default {
   },
   watch: {
     bannerList () {
-      console.log('asdasd')
       setTimeout(() => {
         if (!this.$refs.sliderGroup) {
           this.setSliderWidth()
@@ -109,6 +114,10 @@ export default {
           resolve(res)
         })
       })
+    },
+    detail (item) {
+      this.$store.commit('UPDATE_MUSIC_LIST', item)
+      this.$router.push({ path: `/recommend/${item.id}` })
     },
     setSliderWidth () {
       this.children = this.$refs.sliderGroup.children
@@ -146,7 +155,8 @@ export default {
       this.dots = new Array(this.children.length - 2)
     },
     initScroll () {
-      this.scroll = new BScroll(this.$refs.recommendPage)
+      this.scroll = new BScroll(this.$refs.recommendContend, {
+      })
     },
     refresh () {
       this.scroll && this.scroll.refresh()
@@ -180,10 +190,21 @@ export default {
   overflow: hidden;
   width: 100%;
   height: 100%;
+  position: fixed;
+  top: 44px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  .recoment-contend {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
 }
 
 .slider-wrapper {
-  width: 96%;
+  width: 97%;
   margin: 0 auto;
   border-radius: 5px;
   overflow: hidden;

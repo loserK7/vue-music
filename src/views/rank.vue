@@ -1,22 +1,25 @@
 <template>
   <div class="rank-page" ref="rankPage">
-    <div>
-      <ul class="rank-wrapper">
-        <li class="rank-item" v-for="(ritem, index) in yunTopList" :key="index">
-          <div class="img">
-            <img v-lazy="ritem.coverImgUrl" alt="" />
-          </div>
-          <ul class="song-list">
-            <li class="song" v-for="(item, index) in ritem.top" :key="index">
-              <span>
-                {{ index + 1 + '.' }}
-              </span>
-              <span> {{ item.name }} - {{ item.ar[0].name }} </span>
-            </li>
-          </ul>
-        </li>
-      </ul>
+    <div class="rank-contend" ref="rankContend">
+      <div>
+        <ul class="rank-wrapper">
+          <li class="rank-item" v-for="(ritem, index) in yunTopList" :key="index" @click="rankDetail(ritem)">
+            <div class="img">
+              <img v-lazy="ritem.coverImgUrl" alt="" />
+            </div>
+            <ul class="song-list">
+              <li class="song" v-for="(item, index) in ritem.top" :key="index">
+                <span>
+                  {{ index + 1 + '.' }}
+                </span>
+                <span> {{ item.name }} - {{ item.ar[0].name }} </span>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </div>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -53,8 +56,14 @@ export default {
         })
       }
     },
+    rankDetail (item) {
+      item.picUrl = item.coverImgUrl
+      this.$store.commit('UPDATE_MUSIC_LIST', item)
+      this.$router.push({ path: `/rank/${item.id}` })
+      console.log(item)
+    },
     initScroll () {
-      this.scroll = new BScroll(this.$refs.rankPage)
+      this.scroll = new BScroll(this.$refs.rankContend)
     },
     refresh () {
       this.scroll && this.scroll.refresh()
@@ -70,6 +79,12 @@ export default {
   top: 54px;
   width: 100%;
   overflow: hidden;
+
+  .rank-contend {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
 
   .rank-wrapper {
     width: 100%;
