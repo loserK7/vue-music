@@ -1,5 +1,8 @@
 const state = {
-  musicList: {}
+  musicList: {},
+  playList: [],
+  playingSong: {},
+  fullScreen: true
 
 }
 

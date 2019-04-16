@@ -1,46 +1,49 @@
 <template>
-  <div class="music-list">
-    <div class="list-header" ref="listHeader">
-      <span @click="$router.back()">
-        <i class="iconfont icon-xiangzuo"></i>
-      </span>
-      <span>
-        {{headDetailTitle||headTitle[index]}}
-      </span>
-    </div>
-    <div class="music-list-wrapper" ref=musicListWrapper>
-      <div>
-        <div class="wrapper-bg" :style="bgStyle" ref="bgImage">
-          <div class="filter"></div>
-          <div class="bg-info">
-            <h2 class="info-title">{{musicList.name}}</h2>
-            <div class="info-meg" v-if="!$route.path.includes('singer')">
-              <i class="iconfont icon-play"></i>
-              {{Math.floor(musicList.playCount / 10000) }}万
+  <transition name="slide" mode="out-in">
+
+    <div class="music-list">
+      <div class="list-header" ref="listHeader">
+        <span @click="$router.back()">
+          <i class="iconfont icon-xiangzuo"></i>
+        </span>
+        <span>
+          {{headDetailTitle||headTitle[index]}}
+        </span>
+      </div>
+      <div class="music-list-wrapper" ref=musicListWrapper>
+        <div>
+          <div class="wrapper-bg" :style="bgStyle" ref="bgImage">
+            <div class="filter"></div>
+            <div class="bg-info">
+              <h2 class="info-title">{{musicList.name}}</h2>
+              <div class="info-meg" v-if="!$route.path.includes('singer')">
+                <i class="iconfont icon-play"></i>
+                {{Math.floor(musicList.playCount / 10000) }}万
+              </div>
             </div>
           </div>
-        </div>
-        <div class="music-content">
-          <div class="content-head">
-            <i class="iconfont icon-bofang"></i>
-            <span>播放全部</span>
-            <span>(共{{listDetail.length}}首)</span>
-          </div>
-          <div class="content-list">
-            <ul>
-              <li class="list-item" v-for="(song,index) in listDetail" :key="song.id">
-                <p class="index">{{index +1}}</p>
-                <div class="song-meg">
-                  <div class="song-name">{{song.name}}</div>
-                  <div class="song-singer">{{song.singer}}</div>
-                </div>
-              </li>
-            </ul>
+          <div class="music-content">
+            <div class="content-head">
+              <i class="iconfont icon-bofang"></i>
+              <span>播放全部</span>
+              <span>(共{{listDetail.length}}首)</span>
+            </div>
+            <div class="content-list">
+              <ul>
+                <li class="list-item" v-for="(song,index) in listDetail" :key="song.id" @click="play(song)">
+                  <p class="index">{{index +1}}</p>
+                  <div class="song-meg">
+                    <div class="song-name">{{song.name}}</div>
+                    <div class="song-singer">{{song.singer}}</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script>
@@ -122,6 +125,9 @@ export default {
         })
       })
     },
+    play () {
+      this.$router.push('/player')
+    },
     onScroll (position) {
       console.log(position, 'position')
       let scrollY = position.y
@@ -144,6 +150,15 @@ export default {
 </script>
 
 <style lang="stylus">
+.slide-enter-active, .slide-leave-active {
+  transition: all 0.2s;
+}
+
+.slide-enter, .slide-leave-to {
+  transform: translate3d(30%, 0, 0);
+  opacity: 0;
+}
+
 .music-list {
   position: fixed;
   top: 0;
