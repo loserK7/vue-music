@@ -1,49 +1,51 @@
 <template>
-  <transition name="slide" mode="out-in">
-
-    <div class="music-list">
-      <div class="list-header" ref="listHeader">
-        <span @click="$router.back()">
-          <i class="iconfont icon-xiangzuo"></i>
-        </span>
-        <span>
-          {{headDetailTitle||headTitle[index]}}
-        </span>
-      </div>
-      <div class="music-list-wrapper" ref=musicListWrapper>
-        <div>
-          <div class="wrapper-bg" :style="bgStyle" ref="bgImage">
-            <div class="filter"></div>
-            <div class="bg-info">
-              <h2 class="info-title">{{musicList.name}}</h2>
-              <div class="info-meg" v-if="!$route.path.includes('singer')">
-                <i class="iconfont icon-play"></i>
-                {{Math.floor(musicList.playCount / 10000) }}万
+  <div>
+    <transition name="slide" mode="out-in">
+      <div class="music-list">
+        <div class="list-header" ref="listHeader">
+          <span @click="$router.back()">
+            <i class="iconfont icon-xiangzuo"></i>
+          </span>
+          <span>
+            {{headDetailTitle||headTitle[index]}}
+          </span>
+        </div>
+        <div class="music-list-wrapper" ref=musicListWrapper>
+          <div>
+            <div class="wrapper-bg" :style="bgStyle" ref="bgImage">
+              <div class="filter"></div>
+              <div class="bg-info">
+                <h2 class="info-title">{{musicList.name}}</h2>
+                <div class="info-meg" v-if="!$route.path.includes('singer')">
+                  <i class="iconfont icon-play"></i>
+                  {{Math.floor(musicList.playCount / 10000) }}万
+                </div>
               </div>
             </div>
-          </div>
-          <div class="music-content">
-            <div class="content-head">
-              <i class="iconfont icon-bofang"></i>
-              <span>播放全部</span>
-              <span>(共{{listDetail.length}}首)</span>
-            </div>
-            <div class="content-list">
-              <ul>
-                <li class="list-item" v-for="(song,index) in listDetail" :key="song.id" @click="play(song)">
-                  <p class="index">{{index +1}}</p>
-                  <div class="song-meg">
-                    <div class="song-name">{{song.name}}</div>
-                    <div class="song-singer">{{song.singer}}</div>
-                  </div>
-                </li>
-              </ul>
+            <div class="music-content">
+              <div class="content-head">
+                <i class="iconfont icon-bofang"></i>
+                <span>播放全部</span>
+                <span>(共{{listDetail.length}}首)</span>
+              </div>
+              <div class="content-list">
+                <ul>
+                  <li class="list-item" v-for="(song,index) in listDetail" :key="song.id" @click="play(song)">
+                    <p class="index">{{index +1}}</p>
+                    <div class="song-meg">
+                      <div class="song-name">{{song.name}}</div>
+                      <div class="song-singer">{{song.singer}}</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </transition>
+    </transition>
+  </div>
+
 </template>
 
 <script>
@@ -63,7 +65,9 @@ export default {
         '排行',
         '歌手'
       ],
-      headDetailTitle: ''
+      headDetailTitle: '',
+      audioUrl: '',
+      duration: 0
     }
   },
   created () {
@@ -93,6 +97,16 @@ export default {
         })
         this.musicScroll.on('scroll', this.onScroll)
       }
+    },
+    'audioUrl': function (val) {
+      let stop = setInterval(() => {
+        this.duration = this.$refs.musicAudio.duration
+        if (this.duration) {
+          console.log(this.duration)
+
+          clearInterval(stop)
+        }
+      }, 150)
     }
   },
   beforeDestroy () {
@@ -125,8 +139,12 @@ export default {
         })
       })
     },
-    play () {
-      this.$router.push('/player')
+
+    play (song) {
+      this.$store.commit('UPDATE_FULL_SCREEN')
+      this.$store.commit('UPDATE_SHOW_PLAY_BAR', false)
+      this.$store.commit('UPDATE_PLAY_LIST', song)
+      this.$store.commit('UPDATE_PLAYING_SONG', song)
     },
     onScroll (position) {
       console.log(position, 'position')
@@ -245,7 +263,8 @@ export default {
         align-items: center;
 
         i {
-          font-size: 32px;
+          font-size: 24px;
+          padding: 0 5px;
         }
 
         & span:last-child {

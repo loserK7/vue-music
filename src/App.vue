@@ -4,21 +4,30 @@
     <keep-alive>
       <router-view />
     </keep-alive>
+    <player></player>
+    <play-bar v-show="showPlayBar"></play-bar>
   </div>
 </template>
 
 <script>
 import Tab from '@/components/tab'
+import PlayBar from '@/components/PlayBar'
+import Player from '@/views/Player'
 
+import { mapState } from 'vuex'
 export default {
   name: 'App',
   components: {
-    Tab
+    Tab,
+    Player,
+    PlayBar
   },
   data () {
     return {
-      showPlay: false
     }
+  },
+  computed: {
+    ...mapState(['showPlayBar', 'audioSong'])
   }
 }
 </script>

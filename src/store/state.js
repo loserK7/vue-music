@@ -2,7 +2,10 @@ const state = {
   musicList: {},
   playList: [],
   playingSong: {},
-  fullScreen: true
+  audioSong: {},
+  fullScreen: false,
+  showPlayBar: false,
+  playState: true
 
 }
 

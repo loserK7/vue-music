@@ -1,33 +1,54 @@
 <template>
-  <div class="player-page">
-    <div class="player-contend" v-show="fullScreen">
-      <div class="fliter">
-      </div>
-      <div class="player-top">
-        <div class="icon">
-          <i class="iconfont icon-xiangzuo"></i>
-        </div>
-        <div class="title-contend">
-          <h1 class="song-title">1</h1>
-          <h2 class="song-singer">2</h2>
-        </div>
-      </div>
-      <div class="player-middle">
-        <div class="cdplay">
-          <div class="img-box" :class="[playState?'play':'stop']">
-            <img src="http://p3.music.126.net/xUAfdMHdXhu3BmO4g8nOYA==/109951163573311341.jpg" alt="">
+  <div>
+    <transition name="normal">
+      <div class="player-page" v-show="fullScreen">
+        <div class="player-contend">
+          <div class="fliter">
+          </div>
+          <div class="player-top">
+            <div class="icon" @click="hide">
+              <i class="iconfont icon-xiangzuo"></i>
+            </div>
+            <div class="title-contend">
+              <h1 class="song-title">{{playingSong.album}}</h1>
+              <h2 class="song-singer">{{playingSong.singer}}</h2>
+            </div>
+          </div>
+          <div class="player-middle">
+            <div class="cdplay">
+              <div class="img-box play" :class="[playState?'':'pause']">
+                <img :src="playingSong.image" alt="">
+              </div>
+            </div>
+          </div>
+          <div class="player-bottom">
+            <div class="bottom-wrapper">
+              <span class="time timel">0:00</span>
+              <progress-bar class="progress-bar-wrapper"></progress-bar>
+              <span class="time timer">{{format(duration)}}</span>
+            </div>
+            <div class="operators">
+              <div class="play-mode" @click="changePlayMode">
+                <i class="iconfont" :class="playMode"></i>
+              </div>
+              <div class="play-prev" @click="changeSong(false)">
+                <i class="iconfont icon-xiayigexiayishou"></i>
+              </div>
+              <div class="play-state" @click="changePlayState">
+                <i class="iconfont" :class="[playState?'icon-zanting':'icon-bofang']"></i>
+              </div>
+              <div class="play-next" @click="changeSonge(true)">
+                <i class="iconfont icon-xiayigexiayishou"></i>
+              </div>
+              <div class="play-like" @click="addLikeList">
+                <i class="iconfont icon-xihuan"></i>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="player-bottom">
-        <div class="bottom-wrapper">
-          <span class="time timel">0:00</span>
-          <progress-bar class="progress-bar-wrapper"></progress-bar>
-          <span class="time timer">0:00</span>
-        </div>
-      </div>
-    </div>
-    <play-bar v-show="!fullScreen"></play-bar>
+    </transition>
+    <audio id="music-audio" :src="audioUrl" autoplay ref="musicAudio"></audio>
   </div>
 </template>
 
@@ -42,16 +63,87 @@ export default {
   },
   data () {
     return {
-      playState: true
+      playMode: 'icon-xunhuan',
+      playModeIndex: 0,
+      playModeList: [
+        'icon-xunhuan',
+        'icon-danquxunhuan',
+        'icon-suijibofang'
+      ],
+      duration: 0,
+      audioUrl: ''
     }
   },
+  mounted () {
+  },
   computed: {
-    ...mapState(['fullScreen'])
+    ...mapState(['fullScreen', 'playingSong', 'playState'])
+  },
+  watch: {
+    playingSong (newVal, oldVal) {
+      if (!newVal.id) {
+        return
+      }
+      if (newVal.id === oldVal.id) {
+        return
+      }
+      this.getSongInfo(newVal.id)
+    },
+    playState (newVal, oldVal) {
+      if (newVal) {
+        this.$refs.musicAudio.play()
+      } else {
+        this.$refs.musicAudio.pause()
+      }
+    }
+  },
+  methods: {
+    getSongInfo (id) {
+      this.$fetch(`/song/url?id=${id}`).then(res => {
+        this.$store.commit('UPDATE_AUDIO_SONG', res.data[0])
+        this.audioUrl = res.data[0].url
+      })
+    },
+    format (interval) {
+      interval = interval | 0
+      let minute = interval / 60 | 0
+      let second = interval % 60
+      if (second < 10) {
+        second = '0' + second
+      }
+      return minute + ':' + second
+    },
+    hide () {
+      this.$store.commit('UPDATE_FULL_SCREEN')
+      this.$store.commit('UPDATE_SHOW_PLAY_BAR', true)
+    },
+    changePlayMode () {
+      let playModeIndex = (++this.playModeIndex) % 3
+      this.playMode = this.playModeList[playModeIndex]
+    },
+    changeSong (flag) {
+    },
+    changePlayState () {
+      this.$store.commit('UPDATE_PLAY_STATE')
+    },
+    addLikeList () { }
   }
 }
 </script>
 
 <style lang="stylus">
+.normal-enter-active, &.normal-leave-active {
+  transition: all 0.4s;
+
+  .top, .bottom {
+    transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
+  }
+}
+
+.normal-enter, &.normal-leave-to {
+  opacity: 0;
+}
+
 .player-page {
   position: fixed;
   top: 0;
@@ -148,7 +240,7 @@ export default {
 
   .player-bottom {
     position: absolute;
-    bottom: 100px;
+    bottom: 40px;
     width: 100%;
     margin: 0 auto;
 
@@ -159,7 +251,7 @@ export default {
 
       .progress-bar-wrapper {
         flex: 1;
-        padding:0 5px;
+        padding: 0 5px;
       }
 
       .time {
@@ -176,6 +268,33 @@ export default {
         &.timer {
           text-align: right;
         }
+      }
+    }
+
+    .operators {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 80%;
+      margin: 0 auto;
+      margin-top: 10px;
+
+      .play-mode, .play-prev, .play-state, .play-next, .play-like {
+        flex: 1;
+        text-align: center;
+        color: #fff;
+
+        .iconfont {
+          font-size: 32px;
+        }
+
+        .icon-bofang, .icon-zanting {
+          font-size: 42px;
+        }
+      }
+
+      .play-prev {
+        transform: rotate(-180deg);
       }
     }
   }

@@ -40,7 +40,7 @@ export function createRecommendListSong (music) {
     name: music.name,
     // aliaName: music.song.alias.join('-'),
     album: music.name,
-    image: music.picUrl
+    image: music.al.picUrl
   })
 }
 

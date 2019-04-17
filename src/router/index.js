@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import Recommend from '@/views/recommend'
 import Rank from '@/views/rank'
 import Singer from '@/views/singer'
-import Player from '@/views/Player'
 
 const MusicList = (resolve) => {
   import('@/views/musicList').then((module) => {
@@ -54,11 +53,6 @@ export default new Router({
           component: MusicList
         }
       ]
-    },
-    {
-      path: '/player',
-      name: 'player',
-      component: Player
     }
   ]
 })
