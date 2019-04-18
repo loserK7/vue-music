@@ -23,8 +23,8 @@
           </div>
           <div class="player-bottom">
             <div class="bottom-wrapper">
-              <span class="time timel">0:00</span>
-              <progress-bar class="progress-bar-wrapper"></progress-bar>
+              <span class="time timel">{{format(currentTime)}}</span>
+              <progress-bar class="progress-bar-wrapper" ref="progressBar" :percentage="percentage" @progressClick="progressClick" @progressTouchEnd="progressTouchEnd" @progressTouchStart="progressTouchStart"></progress-bar>
               <span class="time timer">{{format(duration)}}</span>
             </div>
             <div class="operators">
@@ -37,7 +37,7 @@
               <div class="play-state" @click="changePlayState">
                 <i class="iconfont" :class="[playState?'icon-zanting':'icon-bofang']"></i>
               </div>
-              <div class="play-next" @click="changeSonge(true)">
+              <div class="play-next" @click="changeSong(true)">
                 <i class="iconfont icon-xiayigexiayishou"></i>
               </div>
               <div class="play-like" @click="addLikeList">
@@ -48,7 +48,7 @@
         </div>
       </div>
     </transition>
-    <audio id="music-audio" :src="audioUrl" autoplay ref="musicAudio"></audio>
+    <audio id="music-audio" :src="audioUrl" autoplay ref="musicAudio" @ended="songEnd" @timeupdate="updateTime"></audio>
   </div>
 </template>
 
@@ -71,16 +71,19 @@ export default {
         'icon-suijibofang'
       ],
       duration: 0,
-      audioUrl: ''
+      currentTime: 0,
+      audioUrl: '',
+      percentage: 0
     }
   },
   mounted () {
   },
   computed: {
-    ...mapState(['fullScreen', 'playingSong', 'playState'])
+    ...mapState(['fullScreen', 'playingSong', 'playState', 'playList'])
   },
   watch: {
     playingSong (newVal, oldVal) {
+      console.log(newVal, 'newVal')
       if (!newVal.id) {
         return
       }
@@ -95,6 +98,17 @@ export default {
       } else {
         this.$refs.musicAudio.pause()
       }
+    },
+    audioUrl (newUrl) {
+      let stop = setInterval(() => {
+        this.duration = this.$refs.musicAudio.duration
+        if (this.duration) {
+          clearInterval(stop)
+        }
+      }, 150)
+    },
+    currentTime (time) {
+      this.updateProgressBar()
     }
   },
   methods: {
@@ -113,6 +127,36 @@ export default {
       }
       return minute + ':' + second
     },
+    updateTime (e) {
+      // console.log(e)
+      this.currentTime = e.target.currentTime
+    },
+    updateProgressBar () {
+      this.percentage = (this.currentTime / this.duration) * 100
+    },
+    progressClick (percent) {
+      console.log(this.duration * percent, 'this.duration * percent', percent)
+      this.$refs.musicAudio.currentTime = this.duration * percent === this.duration ? this.duration - 0.1 : this.duration * percent
+      if (!this.playState) {
+        this.changePlayState()
+      }
+    },
+    progressTouchStart () {
+      if (this.playState) {
+        this.changePlayState()
+      }
+    },
+    progressTouchEnd (percent) {
+      console.log(this.duration * percent, 'this.duration * percent')
+      this.$refs.musicAudio.currentTime = this.duration * percent
+      if (!this.playState) {
+        this.changePlayState()
+      }
+    },
+    songEnd () {
+      this.changeSong(true)
+      console.log('songEnd')
+    },
     hide () {
       this.$store.commit('UPDATE_FULL_SCREEN')
       this.$store.commit('UPDATE_SHOW_PLAY_BAR', true)
@@ -122,6 +166,27 @@ export default {
       this.playMode = this.playModeList[playModeIndex]
     },
     changeSong (flag) {
+      let index
+      console.log(' this.playList', this.playList, this.playingSong)
+      this.playList[0].forEach((item, i) => {
+        if (item.id === this.playingSong.id) {
+          index = i
+        }
+      })
+      console.log(index, 'index')
+      if (flag) {
+        if (index < this.playList[0].length) {
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0][index + 1])
+        } else if (index === this.playlist[0].length) {
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0][0])
+        }
+      } else {
+        if (index !== 0) {
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0][index - 1])
+        } else if (index === 0) {
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0][this.playList[0].length])
+        }
+      }
     },
     changePlayState () {
       this.$store.commit('UPDATE_PLAY_STATE')
@@ -188,7 +253,7 @@ export default {
 
       .song-title {
         line-height: 30px;
-        font-size: 24px;
+        font-size: 22px;
       }
 
       .song-singer {

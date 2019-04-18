@@ -97,16 +97,6 @@ export default {
         })
         this.musicScroll.on('scroll', this.onScroll)
       }
-    },
-    'audioUrl': function (val) {
-      let stop = setInterval(() => {
-        this.duration = this.$refs.musicAudio.duration
-        if (this.duration) {
-          console.log(this.duration)
-
-          clearInterval(stop)
-        }
-      }, 150)
     }
   },
   beforeDestroy () {
@@ -141,9 +131,10 @@ export default {
     },
 
     play (song) {
+      console.log(this.listDetail, song, 'this.listDetail')
       this.$store.commit('UPDATE_FULL_SCREEN')
       this.$store.commit('UPDATE_SHOW_PLAY_BAR', false)
-      this.$store.commit('UPDATE_PLAY_LIST', song)
+      this.$store.commit('UPDATE_PLAY_LIST', this.listDetail)
       this.$store.commit('UPDATE_PLAYING_SONG', song)
     },
     onScroll (position) {

@@ -11,29 +11,41 @@
 
 <script>
 export default {
+  props: {
+    percentage: {
+      type: Number,
+      default: 0
+    }
+  },
   data () {
     return {
       rec: '',
       maxWidth: 0, // 播放条最大宽度
       left: 0, // 播放条距离左边距离,
-      touch: {}
+      touch: {},
+      percent: 0
     }
   },
   mounted () {
-    this.rec = this.$refs.progressBar.getBoundingClientRect()
-    this.maxWidth = this.rec.width - 15 //
-    this.left = this.rec.left
+  },
+  watch: {
+    percentage (newVal) {
+      this.offsetWithPercentage()
+    }
   },
   methods: {
+    init () {
+      this.rec = this.$refs.progressBar.getBoundingClientRect()
+      this.maxWidth = this.rec.width - 17 //
+      this.left = this.rec.left
+    },
     progressClick (e) {
-      let rec = this.$refs.progressBar.getBoundingClientRect()
-      console.log(rec, e)
       this.offset(e.pageX - this.left)
+      this.$emit('progressClick', this.percent)
     },
     progressTouchStart (e) {
       this.touch.initiated = true
-      this.touch.startX = e.touches[0].pageX
-      this.touch.left = this.$refs.progress.clientWidth
+      this.$emit('progressTouchStart')
     },
     progressTouchMove (e) {
       if (!this.touch.initiated) {
@@ -44,20 +56,32 @@ export default {
       this.offset(offsetWidth)
     },
     progressTouchEnd (e) {
-      this.touch.initiated = false
+      this.$emit('progressTouchEnd', this.percent)
     },
     offset (offsetWidth) {
       // this.$refs.progress.style.width = `${offsetWidth}px`
+      console.log(offsetWidth, 'offsetWidth')
       if (offsetWidth > 0 && offsetWidth < this.maxWidth) {
         this.$refs.progressBtn.style.transform = `translate3d(${offsetWidth}px, 0, 0)`
         this.$refs.progress.style.width = `${offsetWidth}px`
+        this.percent = offsetWidth / this.maxWidth
       } else if (offsetWidth < 0) {
         this.$refs.progressBtn.style.transform = `translate3d(0, 0, 0)`
         this.$refs.progress.style.width = 0
+        this.percent = 0
       } else {
         this.$refs.progressBtn.style.transform = `translate3d(${this.maxWidth}px, 0, 0)`
         this.$refs.progress.style.width = '100%'
+        this.percent = 1
       }
+    },
+    offsetWithPercentage (percentage) {
+      if (!this.maxWidth) {
+        this.init()
+      }
+      let distant = this.maxWidth * (this.percentage / 100)
+      this.$refs.progressBtn.style.transform = `translate3d(${distant}px, 0, 0)`
+      this.$refs.progress.style.width = `${this.percentage}%`
     }
   }
 }

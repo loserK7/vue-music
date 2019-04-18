@@ -14,6 +14,7 @@ const mutations = {
     state.showPlayBar = flag
   },
   UPDATE_PLAYING_SONG (state, song) {
+    console.log('mutations', song)
     state.playingSong = song
   },
   UPDATE_AUDIO_SONG (state, song) {
