@@ -6,9 +6,10 @@ const mutations = {
     state.fullScreen = !state.fullScreen
   },
   UPDATE_PLAY_LIST (state, music) {
-    if (state.playList.indexOf(music) === -1) {
-      state.playList.unshift(music)
-    }
+    state.playList = music
+  },
+  INSERT_PLAY_LISH (state, song) {
+    state.playList.unshift(song)
   },
   UPDATE_SHOW_PLAY_BAR (state, flag) {
     state.showPlayBar = flag
@@ -24,5 +25,4 @@ const mutations = {
     state.playState = !state.playState
   }
 }
-
 export default mutations

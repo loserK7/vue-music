@@ -64,7 +64,7 @@ export default {
   data () {
     return {
       playMode: 'icon-xunhuan',
-      playModeIndex: 0,
+      playModeIndex: 0, // 0顺序，1单曲，2随机
       playModeList: [
         'icon-xunhuan',
         'icon-danquxunhuan',
@@ -135,7 +135,6 @@ export default {
       this.percentage = (this.currentTime / this.duration) * 100
     },
     progressClick (percent) {
-      console.log(this.duration * percent, 'this.duration * percent', percent)
       this.$refs.musicAudio.currentTime = this.duration * percent === this.duration ? this.duration - 0.1 : this.duration * percent
       if (!this.playState) {
         this.changePlayState()
@@ -147,45 +146,62 @@ export default {
       }
     },
     progressTouchEnd (percent) {
-      console.log(this.duration * percent, 'this.duration * percent')
       this.$refs.musicAudio.currentTime = this.duration * percent
       if (!this.playState) {
         this.changePlayState()
       }
     },
     songEnd () {
-      this.changeSong(true)
-      console.log('songEnd')
+      if (this.playModeIndex === 1) {
+        this.$refs.musicAudio.currentTime = 0
+        this.$refs.musicAudio.play()
+      } else {
+        this.changeSong(true)
+      }
     },
     hide () {
       this.$store.commit('UPDATE_FULL_SCREEN')
       this.$store.commit('UPDATE_SHOW_PLAY_BAR', true)
     },
     changePlayMode () {
-      let playModeIndex = (++this.playModeIndex) % 3
-      this.playMode = this.playModeList[playModeIndex]
+      this.playModeIndex = (++this.playModeIndex) % 3
+      this.playMode = this.playModeList[this.playModeIndex]
     },
     changeSong (flag) {
       let index
-      console.log(' this.playList', this.playList, this.playingSong)
-      this.playList[0].forEach((item, i) => {
+      let length = this.playList.length - 1
+      // 只有一首歌的时候
+      if (!length) {
+        this.$refs.musicAudio.currentTime = 0
+        this.$refs.musicAudio.play()
+        return
+      }
+      this.playList.forEach((item, i) => {
         if (item.id === this.playingSong.id) {
           index = i
         }
       })
-      console.log(index, 'index')
-      if (flag) {
-        if (index < this.playList[0].length) {
-          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0][index + 1])
-        } else if (index === this.playlist[0].length) {
-          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0][0])
+      if (!this.playModeIndex) {
+        if (flag) {
+          // 下一首
+          if (index < length) {
+            this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index + 1])
+          } else if (index === length) {
+            // 返回第一首
+            this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0])
+          }
+        } else {
+          // 上一首
+          if (index !== 0) {
+            this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index - 1])
+          } else if (!index) {
+            // 返回最后一首
+            this.$store.commit('UPDATE_PLAYING_SONG', this.playList[length])
+          }
         }
       } else {
-        if (index !== 0) {
-          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0][index - 1])
-        } else if (index === 0) {
-          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0][this.playList[0].length])
-        }
+        let index = parseInt(Math.random() * length, 10)
+        this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index])
       }
     },
     changePlayState () {

@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 axios.defaults.timeout = 5000
-axios.defaults.baseURL = '/api'
-
+axios.defaults.baseURL = process.env.NODE_ENV === 'development' ? '/api' : 'http://localhost:3000'
+axios.defaults.withCredentials = true
 // http request 拦截器
 axios.interceptors.request.use(
   config => {

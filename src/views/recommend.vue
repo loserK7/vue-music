@@ -5,7 +5,7 @@
         <div class="slider-wrapper">
           <div class="slider" ref="slider">
             <div class="slider-group" ref="sliderGroup">
-              <div v-for="(item, key) in bannerList" :key="key">
+              <div v-for="(item, key) in bannerList" :key="key" @click="playSong(item)">
                 <img :src="item.imageUrl" alt="" />
               </div>
             </div>
@@ -43,6 +43,7 @@
 <script>
 import { addClass } from 'common/js/common.js'
 import BScroll from 'better-scroll'
+import { createRecommendListSong } from 'common/js/song'
 export default {
   name: 'recommend',
   data () {
@@ -95,7 +96,11 @@ export default {
     getBannerList () {
       return new Promise((resolve, reject) => {
         this.$fetch('/banner').then(res => {
-          this.bannerList = res.banners
+          this.bannerList = res.banners.filter(item => {
+            if (item.encodeId !== '0') {
+              return true
+            }
+          })
           this.$nextTick(() => {
             this.setSliderWidth()
             this.initSlider()
@@ -146,8 +151,8 @@ export default {
         },
         snapSpeed: 400,
         bounce: false,
-        stopPropagation: true
-        // click: true
+        stopPropagation: true,
+        click: true
       })
       this.slider.on('scrollEnd', this.onScrollEnd)
     },
@@ -167,6 +172,16 @@ export default {
         this.slider.next()
       }, this.interval)
     },
+    playSong (item) {
+      this.$fetch(`/song/detail?ids=${item.encodeId}`).then(res => {
+        let song = createRecommendListSong(res.songs[0])
+        this.$store.commit('UPDATE_PLAYING_SONG', song)
+        this.$store.dispatch('insertPlayList', song)
+        this.$store.commit('UPDATE_FULL_SCREEN')
+        this.$store.commit('UPDATE_SHOW_PLAY_BAR', false)
+      })
+      console.log('slider-item', item)
+    },
     onScrollEnd () {
       let pageIndex = this.slider.getCurrentPage().pageX
       this.currentIndex = pageIndex
@@ -180,7 +195,7 @@ export default {
 .decorate {
   background: #d44439;
   width: 100%;
-  height: 50vh;
+  height: 45vh;
   top: -30vh;
   z-index: -10;
   position: absolute;

@@ -16,8 +16,8 @@
         </div>
       </div>
       <div class="bar-right">
-        <div class="play" @click="changePlayState">
-          <i class="iconfont " :class="[playState?'icon-zanting':'icon-bofang']"></i>
+        <div class="play">
+          <i class="iconfont " :class="[playState?'icon-zanting':'icon-bofang']"  @click="changePlayState"></i>
         </div>
         <div class="menu">
           <i class="iconfont icon-menu"></i>

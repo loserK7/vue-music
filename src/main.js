@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import { post, fetch, patch, put } from './request'
+import { post, fetch, patch, put } from '@/utils/request'
 import VueLazyload from 'vue-lazyload'
 import EventBus from './utils/eventBus.js'
 import 'lib-flexible/flexible.js' // 适配库

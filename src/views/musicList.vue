@@ -1,50 +1,48 @@
 <template>
-  <div>
-    <transition name="slide" mode="out-in">
-      <div class="music-list">
-        <div class="list-header" ref="listHeader">
-          <span @click="$router.back()">
-            <i class="iconfont icon-xiangzuo"></i>
-          </span>
-          <span>
-            {{headDetailTitle||headTitle[index]}}
-          </span>
-        </div>
-        <div class="music-list-wrapper" ref=musicListWrapper>
-          <div>
-            <div class="wrapper-bg" :style="bgStyle" ref="bgImage">
-              <div class="filter"></div>
-              <div class="bg-info">
-                <h2 class="info-title">{{musicList.name}}</h2>
-                <div class="info-meg" v-if="!$route.path.includes('singer')">
-                  <i class="iconfont icon-play"></i>
-                  {{Math.floor(musicList.playCount / 10000) }}万
-                </div>
+  <transition name="slide">
+    <div class="music-list">
+      <div class="list-header" ref="listHeader">
+        <span @click="$router.back()">
+          <i class="iconfont icon-xiangzuo"></i>
+        </span>
+        <span>
+          {{headDetailTitle||headTitle[index]}}
+        </span>
+      </div>
+      <div class="music-list-wrapper" ref=musicListWrapper>
+        <div>
+          <div class="wrapper-bg" :style="bgStyle" ref="bgImage">
+            <div class="filter"></div>
+            <div class="bg-info">
+              <h2 class="info-title">{{musicList.name}}</h2>
+              <div class="info-meg" v-if="!$route.path.includes('singer')">
+                <i class="iconfont icon-play"></i>
+                {{Math.floor(musicList.playCount / 10000) }}万
               </div>
             </div>
-            <div class="music-content">
-              <div class="content-head">
-                <i class="iconfont icon-bofang"></i>
-                <span>播放全部</span>
-                <span>(共{{listDetail.length}}首)</span>
-              </div>
-              <div class="content-list">
-                <ul>
-                  <li class="list-item" v-for="(song,index) in listDetail" :key="song.id" @click="play(song)">
-                    <p class="index">{{index +1}}</p>
-                    <div class="song-meg">
-                      <div class="song-name">{{song.name}}</div>
-                      <div class="song-singer">{{song.singer}}</div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+          </div>
+          <div class="music-content">
+            <div class="content-head">
+              <i class="iconfont icon-bofang" @click="playAll"></i>
+              <span>播放全部</span>
+              <span>(共{{listDetail.length}}首)</span>
+            </div>
+            <div class="content-list">
+              <ul>
+                <li class="list-item" v-for="(song,index) in listDetail" :key="song.id" @click="play(song)">
+                  <p class="index">{{index +1}}</p>
+                  <div class="song-meg">
+                    <div class="song-name">{{song.name}}</div>
+                    <div class="song-singer">{{song.singer}}</div>
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
-    </transition>
-  </div>
+    </div>
+  </transition>
 
 </template>
 
@@ -82,7 +80,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['musicList']),
+    ...mapState(['musicList', 'playList']),
     bgStyle () {
       return `background-image: url(${this.musicList.picUrl})`
     }
@@ -134,8 +132,24 @@ export default {
       console.log(this.listDetail, song, 'this.listDetail')
       this.$store.commit('UPDATE_FULL_SCREEN')
       this.$store.commit('UPDATE_SHOW_PLAY_BAR', false)
-      this.$store.commit('UPDATE_PLAY_LIST', this.listDetail)
+      this.$store.dispatch('insertPlayList', song)
       this.$store.commit('UPDATE_PLAYING_SONG', song)
+    },
+    playAll () {
+      console.log(this.listDetail)
+      if (!this.playList.length) {
+        this.$store.commit('UPDATE_PLAY_LIST', this.listDetail)
+        this.$store.commit('UPDATE_PLAYING_SONG', this.listDetail[0])
+        this.$store.commit('UPDATE_FULL_SCREEN')
+        this.$store.commit('UPDATE_SHOW_PLAY_BAR', false)
+      } else {
+        this.listDetail.reverse().forEach(item => {
+          this.$store.dispatch('insertPlayList', item)
+        })
+        this.$store.commit('UPDATE_PLAYING_SONG', this.listDetail[0])
+        this.$store.commit('UPDATE_FULL_SCREEN')
+        this.$store.commit('UPDATE_SHOW_PLAY_BAR', false)
+      }
     },
     onScroll (position) {
       console.log(position, 'position')
