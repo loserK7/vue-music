@@ -14,12 +14,32 @@
               <h2 class="song-singer">{{playingSong.singer}}</h2>
             </div>
           </div>
-          <div class="player-middle">
-            <div class="cdplay">
-              <div class="img-box play" :class="[playState?'':'pause']">
-                <img :src="playingSong.image" alt="">
+          <div class="player-middle" @click="changeCurrentShow">
+            <transition name="cdplay">
+              <div class="cdplay" v-show="currentShow==='cd'">
+                <div class="cdplay-wrapper">
+                  <div class="img-box play" :class="[playState?'':'pause']">
+                    <img :src="playingSong.image" alt="">
+                  </div>
+                </div>
               </div>
-            </div>
+            </transition>
+            <transition name="lyric">
+              <div class="lyric" v-show="currentShow=='lyric'">
+                <div class="lyric-wrapper" ref="lyricWrapper">
+                  <div>
+                    <div class="currentLyric" v-if="currentLyric">
+                      <p class="lyric-text" v-for="(line,index) in currentLyric.lines" :key="index">
+                        {{line.txt}}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="lyric-text">暂无歌词</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </transition>
           </div>
           <div class="player-bottom">
             <div class="bottom-wrapper">
@@ -54,7 +74,9 @@
 
 <script>
 import PlayBar from '@/components/PlayBar'
+import Lyric from 'lyric-parser'
 import ProgressBar from '@/components/progressBar'
+import BScroll from 'better-scroll'
 import { mapState } from 'vuex'
 export default {
   components: {
@@ -70,9 +92,13 @@ export default {
         'icon-danquxunhuan',
         'icon-suijibofang'
       ],
+      currentShow: 'cd',
+      currentLyric: null,
       duration: 0,
       currentTime: 0,
       audioUrl: '',
+      noLyric: false,
+      currentLineNum: 0,
       percentage: 0
     }
   },
@@ -109,6 +135,11 @@ export default {
     },
     currentTime (time) {
       this.updateProgressBar()
+    },
+    currentLyric () {
+      setTimeout(() => {
+        this.lyricScroll.refresh()
+      }, 20)
     }
   },
   methods: {
@@ -117,6 +148,26 @@ export default {
         this.$store.commit('UPDATE_AUDIO_SONG', res.data[0])
         this.audioUrl = res.data[0].url
       })
+      this.$fetch(`lyric?id=${id}`).then(res => {
+        this.currentLyric = new Lyric(res.lrc.lyric, this.lyricHandle)
+        if (!this.lyricScroll) {
+          this.lyricScroll = new BScroll(this.$refs.lyricWrapper, {
+            click: true
+          })
+        }
+        console.log('this.currentLyric', this.currentLyric)
+      }).catch(() => {
+        this.currentLyric = null
+        this.noLyric = true
+        this.currentLineNum = 0
+      })
+    },
+    changeCurrentShow () {
+      if (this.currentShow === 'cd') {
+        this.currentShow = 'lyric'
+      } else {
+        this.currentShow = 'cd'
+      }
     },
     format (interval) {
       interval = interval | 0
@@ -126,6 +177,9 @@ export default {
         second = '0' + second
       }
       return minute + ':' + second
+    },
+    lyricHandle ({ lineNum, txt }) {
+      console.log(lineNum, txt)
     },
     updateTime (e) {
       // console.log(e)
@@ -213,18 +267,6 @@ export default {
 </script>
 
 <style lang="stylus">
-.normal-enter-active, &.normal-leave-active {
-  transition: all 0.4s;
-
-  .top, .bottom {
-    transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
-  }
-}
-
-.normal-enter, &.normal-leave-to {
-  opacity: 0;
-}
-
 .player-page {
   position: fixed;
   top: 0;
@@ -232,6 +274,18 @@ export default {
   right: 0;
   left: 0;
   background: #F2F3F4;
+
+  &.normal-enter-active, &.normal-leave-active {
+    transition: all 0.4s;
+
+    .top, .bottom {
+      transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
+    }
+  }
+
+  &.normal-enter, &.normal-leave-to {
+    opacity: 0;
+  }
 
   .fliter {
     position: absolute;
@@ -289,9 +343,28 @@ export default {
     justify-content: center;
     align-items: center;
 
+    .cdplay-enter-active, .cdplay-leave-active {
+      transition: all .3s;
+    }
+
+    .cdplay-enter, .cdplay-leave-to {
+      opacity: 0;
+    }
+
     .cdplay {
-      width: 280px;
-      height: 280px;
+      width: 100%;
+      height: 0;
+      padding-top: 80%;
+      position: relative;
+
+      .cdplay-wrapper {
+        width: 280px;
+        height: 280px;
+        margin: 0 auto;
+        position: absolute;
+        top: 0;
+        left: 10%;
+      }
 
       .img-box {
         width: 100%;
@@ -314,6 +387,40 @@ export default {
 
         &.pause {
           animation-play-state: paused;
+        }
+      }
+    }
+
+    .lyric-enter-active, .lyric-leave-active {
+      transition: all .3s;
+    }
+
+    .lyric-enter, .lyric-leave-to {
+      opacity: 0;
+    }
+
+    .lyric {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      overflow: hidden;
+
+      .lyric-wrapper {
+        width: 80%;
+        height: 100%;
+        margin: 0 auto;
+        text-align: center;
+        overflow: hidden;
+
+        p {
+          margin: 15px 0;
+          color: #c7c7c7;
+          line-height: 30px;
+          font-size: 14px;
+
+          &.current {
+            color: #fff;
+          }
         }
       }
     }

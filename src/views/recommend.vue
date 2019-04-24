@@ -44,6 +44,7 @@
 import { addClass } from 'common/js/common.js'
 import BScroll from 'better-scroll'
 import { createRecommendListSong } from 'common/js/song'
+
 export default {
   name: 'recommend',
   data () {
@@ -93,6 +94,7 @@ export default {
     }
   },
   methods: {
+
     getBannerList () {
       return new Promise((resolve, reject) => {
         this.$fetch('/banner').then(res => {
