@@ -5,6 +5,7 @@
       <router-view />
     </keep-alive>
     <player></player>
+    <play-list ref="playList"></play-list>
     <play-bar v-show="showPlayBar"></play-bar>
   </div>
 </template>
@@ -13,6 +14,7 @@
 import Tab from '@/components/tab'
 import PlayBar from '@/components/PlayBar'
 import Player from '@/views/Player'
+import PlayList from '@/components/playList'
 
 import { mapState } from 'vuex'
 export default {
@@ -20,7 +22,8 @@ export default {
   components: {
     Tab,
     Player,
-    PlayBar
+    PlayBar,
+    PlayList
   },
   data () {
     return {

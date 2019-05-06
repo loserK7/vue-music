@@ -19,7 +19,7 @@
         <div class="play">
           <i class="iconfont " :class="[playState?'icon-zanting':'icon-bofang']"  @click="changePlayState"></i>
         </div>
-        <div class="menu">
+        <div class="menu" @click="showPlayList">
           <i class="iconfont icon-menu"></i>
         </div>
       </div>
@@ -39,6 +39,9 @@ export default {
     ...mapState(['playingSong', 'playState'])
   },
   methods: {
+    showPlayList () {
+      this.$parent.$refs.playList.show()
+    },
     play () {
       this.$store.commit('UPDATE_FULL_SCREEN')
       this.$store.commit('UPDATE_SHOW_PLAY_BAR', false)

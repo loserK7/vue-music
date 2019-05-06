@@ -15,7 +15,7 @@
             </div>
           </div>
           <div class="player-middle" @click="changeCurrentShow">
-            <transition name="cdplay">
+            <transition name="cdplay" mode="out-in">
               <div class="cdplay" v-show="currentShow==='cd'">
                 <div class="cdplay-wrapper">
                   <div class="img-box play" :class="[playState?'':'pause']">
@@ -24,7 +24,7 @@
                 </div>
               </div>
             </transition>
-            <transition name="lyric">
+            <transition name="lyric" mode="out-in">
               <div class="lyric" v-show="currentShow=='lyric'">
                 <div class="lyric-wrapper" ref="lyricWrapper">
                   <div>
@@ -85,7 +85,6 @@ export default {
   },
   data () {
     return {
-      playMode: 'icon-xunhuan',
       playModeIndex: 0, // 0顺序，1单曲，2随机
       playModeList: [
         'icon-xunhuan',
@@ -105,7 +104,7 @@ export default {
   mounted () {
   },
   computed: {
-    ...mapState(['fullScreen', 'playingSong', 'playState', 'playList'])
+    ...mapState(['fullScreen', 'playingSong', 'playState', 'playList', 'playMode'])
   },
   watch: {
     playingSong (newVal, oldVal) {
@@ -140,6 +139,10 @@ export default {
       setTimeout(() => {
         this.lyricScroll.refresh()
       }, 20)
+    },
+    playMode (newVal) {
+      let index = this.playModeList.indexOf(newVal)
+      this.playModeIndex = index
     }
   },
   methods: {
@@ -206,11 +209,33 @@ export default {
       }
     },
     songEnd () {
-      if (this.playModeIndex === 1) {
-        this.$refs.musicAudio.currentTime = 0
-        this.$refs.musicAudio.play()
-      } else {
-        this.changeSong(true)
+      // playModeIndex: 0, // 0顺序，1单曲，2随机
+
+      switch (this.playModeIndex) {
+        case 0: {
+          // 顺序播放
+          this.changeSong(true)
+          break
+        }
+        case 1: {
+          // 单曲循环
+          this.$refs.musicAudio.currentTime = 0
+          this.$refs.musicAudio.play()
+          break
+        }
+        case 2: {
+          // 随机播放
+          let maxLength = this.playList.length - 1
+          let index = Math.floor(Math.random() * (maxLength + 1))
+          console.log(index, 'index')
+          if (this.playList[index].id === this.playingSong.id) {
+            this.$refs.musicAudio.currentTime = 0
+            this.$refs.musicAudio.play()
+          } else {
+            this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index])
+          }
+          break
+        }
       }
     },
     hide () {
@@ -219,7 +244,7 @@ export default {
     },
     changePlayMode () {
       this.playModeIndex = (++this.playModeIndex) % 3
-      this.playMode = this.playModeList[this.playModeIndex]
+      this.$store.commit('UPDATE_PLAY_MODE', this.playModeList[this.playModeIndex])
     },
     changeSong (flag) {
       let index
@@ -235,27 +260,22 @@ export default {
           index = i
         }
       })
-      if (!this.playModeIndex) {
-        if (flag) {
-          // 下一首
-          if (index < length) {
-            this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index + 1])
-          } else if (index === length) {
-            // 返回第一首
-            this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0])
-          }
-        } else {
-          // 上一首
-          if (index !== 0) {
-            this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index - 1])
-          } else if (!index) {
-            // 返回最后一首
-            this.$store.commit('UPDATE_PLAYING_SONG', this.playList[length])
-          }
+      if (flag) {
+        // 下一首
+        if (index < length) {
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index + 1])
+        } else if (index === length) {
+          // 返回第一首
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0])
         }
       } else {
-        let index = parseInt(Math.random() * length, 10)
-        this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index])
+        // 上一首
+        if (index !== 0) {
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index - 1])
+        } else if (!index) {
+          // 返回最后一首
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[length])
+        }
       }
     },
     changePlayState () {
@@ -344,7 +364,7 @@ export default {
     align-items: center;
 
     .cdplay-enter-active, .cdplay-leave-active {
-      transition: all .3s;
+      transition: all 0.3s;
     }
 
     .cdplay-enter, .cdplay-leave-to {
@@ -392,7 +412,7 @@ export default {
     }
 
     .lyric-enter-active, .lyric-leave-active {
-      transition: all .3s;
+      transition: all 0.3s;
     }
 
     .lyric-enter, .lyric-leave-to {

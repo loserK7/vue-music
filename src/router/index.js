@@ -1,16 +1,27 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Recommend from '@/views/recommend'
-import Rank from '@/views/rank'
-import Singer from '@/views/singer'
 
-const MusicList = (resolve) => {
-  import('@/views/musicList').then((module) => {
+const MusicList = resolve => {
+  import('@/views/musicList').then(module => {
+    resolve(module)
+  })
+}
+const Recommend = resolve => {
+  import('@/views/recommend').then(module => {
+    resolve(module)
+  })
+}
+const Rank = resolve => {
+  import('@/views/rank').then(module => {
+    resolve(module)
+  })
+}
+const Singer = resolve => {
+  import('@/views/singer').then(module => {
     resolve(module)
   })
 }
 Vue.use(Router)
-
 export default new Router({
   routes: [
     {

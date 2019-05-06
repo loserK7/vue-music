@@ -1,11 +1,21 @@
 const actions = {
-  insertPlayList ({state, commit}, song) {
+  insertPlayList ({ state, commit }, song) {
+    let flag = true
     state.playList.forEach(item => {
       if (item.id === song.id) {
-        return false
+        flag = false
       }
     })
-    commit('INSERT_PLAY_LISH', song)
+    if (flag) {
+      commit('INSERT_PLAY_LIST', song)
+    }
+  },
+  deletedPlayList ({ state, commit }, song) {
+    state.playList.forEach((item, index) => {
+      if (item.id === song.id) {
+        commit('DELETE_PLAY_PIST', index)
+      }
+    })
   }
 }
 

@@ -136,17 +136,17 @@ export default {
       this.$store.commit('UPDATE_PLAYING_SONG', song)
     },
     playAll () {
-      console.log(this.listDetail)
+      let list = JSON.parse(JSON.stringify(this.listDetail))
       if (!this.playList.length) {
-        this.$store.commit('UPDATE_PLAY_LIST', this.listDetail)
-        this.$store.commit('UPDATE_PLAYING_SONG', this.listDetail[0])
+        this.$store.commit('UPDATE_PLAY_LIST', list)
+        this.$store.commit('UPDATE_PLAYING_SONG', list[0])
         this.$store.commit('UPDATE_FULL_SCREEN')
         this.$store.commit('UPDATE_SHOW_PLAY_BAR', false)
       } else {
-        this.listDetail.reverse().forEach(item => {
+        list.reverse().forEach(item => {
           this.$store.dispatch('insertPlayList', item)
         })
-        this.$store.commit('UPDATE_PLAYING_SONG', this.listDetail[0])
+        this.$store.commit('UPDATE_PLAYING_SONG', list[0])
         this.$store.commit('UPDATE_FULL_SCREEN')
         this.$store.commit('UPDATE_SHOW_PLAY_BAR', false)
       }

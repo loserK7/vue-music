@@ -1,8 +1,9 @@
 const state = {
   musicList: {},
-  playList: [],
+  playList: [], // 播放列表
   playingSong: {},
   audioSong: {},
+  playMode: 'icon-xunhuan',
   fullScreen: false,
   showPlayBar: false,
   playState: true
