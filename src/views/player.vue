@@ -110,6 +110,10 @@ export default {
     playingSong (newVal, oldVal) {
       console.log(newVal, 'newVal')
       if (!newVal.id) {
+        this.$refs.musicAudio.pause()
+        this.$refs.currentTime = 0
+        this.currentTime = 0
+        this.audioUrl = ''
         return
       }
       if (newVal.id === oldVal.id) {
@@ -125,12 +129,14 @@ export default {
       }
     },
     audioUrl (newUrl) {
-      let stop = setInterval(() => {
-        this.duration = this.$refs.musicAudio.duration
-        if (this.duration) {
-          clearInterval(stop)
-        }
-      }, 150)
+      if (newUrl) {
+        let stop = setInterval(() => {
+          this.duration = this.$refs.musicAudio.duration
+          if (this.duration) {
+            clearInterval(stop)
+          }
+        }, 150)
+      }
     },
     currentTime (time) {
       this.updateProgressBar()

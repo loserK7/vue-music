@@ -28,6 +28,15 @@ const mutations = {
   },
   UPDATE_PLAY_MODE (state, mode) {
     state.playMode = mode
+  },
+  INIT_STATE (state) {
+    state.playList = []
+    state.playingSong = {}
+    state.audioSong = {}
+    state.playMode = 'icon-xunhuan'
+    state.fullScreen = false
+    state.showPlayBar = false
+    state.playState = true
   }
 }
 export default mutations

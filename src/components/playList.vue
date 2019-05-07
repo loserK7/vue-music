@@ -35,6 +35,7 @@
           </span>
         </div>
       </div>
+      <confirm-box :visible='visible' @cancel="cancelEmit" @confirm="confirmEmit"></confirm-box>
     </div>
   </transition>
 </template>
@@ -42,7 +43,11 @@
 <script>
 import { mapState } from 'vuex'
 import BScroll from 'better-scroll'
+import ConfirmBox from '@/components/confirmBox'
 export default {
+  components: {
+    ConfirmBox
+  },
   data () {
     return {
       showFlag: false,
@@ -52,7 +57,8 @@ export default {
         'icon-danquxunhuan',
         'icon-suijibofang'
       ],
-      modeText: '循环播放'
+      modeText: '循环播放',
+      visible: false
     }
   },
   mounted () {
@@ -83,14 +89,41 @@ export default {
     }
   },
   methods: {
+    cancelEmit () {
+      this.visible = false
+    },
+    confirmEmit () {
+      this.visible = false
+      this.showFlag = false
+      this.$store.commit('INIT_STATE')
+    },
     changePlaySong (item) {
       this.$store.commit('UPDATE_PLAYING_SONG', item)
     },
     deletedSong (item) {
-      this.$store.dispatch('deletedPlayList', item)
+      // 只有一首歌
+      if (this.playList.length === 1) {
+        this.$store.commit('INIT_STATE')
+        this.showFlag = false
+      }
+      // 删除的是正在播放的歌曲
+      if (item.id === this.playingSong.id) {
+        let index = this.playList.indexOf(item) + 1
+        let len = this.playList.length
+        if (index < len) {
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index])
+        } else {
+          this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0])
+        }
+        this.$store.commit('DELETE_PLAY_PIST', index - 1)
+      } else {
+      // 删除的是其他歌曲
+        let index = this.playList.indexOf(item)
+        this.$store.commit('DELETE_PLAY_PIST', index)
+      }
     },
     clear () {
-
+      this.visible = true
     },
     show () {
       this.showFlag = true
