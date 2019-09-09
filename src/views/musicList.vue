@@ -127,9 +127,7 @@ export default {
                 })
             })
         },
-
         play(song) {
-            console.log(this.listDetail, song, 'this.listDetail')
             this.$store.commit('UPDATE_FULL_SCREEN')
             this.$store.commit('UPDATE_SHOW_PLAY_BAR', true)
             this.$store.dispatch('insertPlayList', song)
@@ -161,11 +159,8 @@ export default {
                 this.headDetailTitle = ''
             }
             if (this.$refs.listHeader) {
-                if (scrollY < 0) {
-                    this.$refs.listHeader.style.background = `rgba(212, 68, 57, ${percent})`
-                } else {
-                    this.$refs.listHeader.style.background = `rgba(212, 68, 57, 0)`
-                }
+                let bcg = scrollY < 0 ? `rgba(212, 68, 57, ${percent})` : `rgba(212, 68, 57, 0)`
+                this.$refs.listHeader.style.background = bcg
             }
         }
     }
@@ -186,7 +181,7 @@ export default {
     right: 0;
     left: 0;
     bottom: 0;
-    z-index: 200;
+    z-index: 300;
     background: #fff;
     .list-header {
         z-index: 10;

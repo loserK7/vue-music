@@ -74,7 +74,7 @@ export default {
     justify-content: center;
     align-items: center;
     padding-left: 15px;
-    z-index:200;
+    z-index:301;
     .bar-left {
         flex: 2;
         height: 100%;

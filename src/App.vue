@@ -1,13 +1,13 @@
 <template>
-  <div id="app" ref="app">
-    <tab></tab>
-    <keep-alive>
-      <router-view />
-    </keep-alive>
-    <player></player>
-    <play-list ref="playList"></play-list>
-    <play-bar v-show="showPlayBar"></play-bar>
-  </div>
+    <div id="app" ref="app">
+        <tab></tab>
+        <keep-alive>
+            <router-view />
+        </keep-alive>
+        <player></player>
+        <play-list ref="playList"></play-list>
+        <play-bar v-show="showPlayBar"></play-bar>
+    </div>
 </template>
 
 <script>
@@ -18,30 +18,30 @@ import PlayList from '@/components/playList'
 
 import { mapState } from 'vuex'
 export default {
-  name: 'App',
-  components: {
-    Tab,
-    Player,
-    PlayBar,
-    PlayList
-  },
-  data () {
-    return {
+    name: 'App',
+    components: {
+        Tab,
+        Player,
+        PlayBar,
+        PlayList
+    },
+    data() {
+        return {
+        }
+    },
+    computed: {
+        ...mapState(['showPlayBar', 'audioSong'])
     }
-  },
-  computed: {
-    ...mapState(['showPlayBar', 'audioSong'])
-  }
 }
 </script>
 
 <style lang="stylus">
 #app {
-  position: fixed;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-  background-color: rgba(188, 188, 188, 0.15);
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: rgba(188, 188, 188, 0.15);
 }
 </style>

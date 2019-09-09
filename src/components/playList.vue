@@ -66,7 +66,9 @@ export default {
         if (this.scroll) {
             this.scroll.refresh()
         } else {
-            this.scroll = new BScroll(this.$refs.listContent)
+            this.scroll = new BScroll(this.$refs.listContent, {
+                click: true
+            })
         }
     },
     computed: {
@@ -110,11 +112,8 @@ export default {
             if (item.id === this.playingSong.id) {
                 let index = this.playList.indexOf(item) + 1
                 let len = this.playList.length
-                if (index < len) {
-                    this.$store.commit('UPDATE_PLAYING_SONG', this.playList[index])
-                } else {
-                    this.$store.commit('UPDATE_PLAYING_SONG', this.playList[0])
-                }
+                let list = index < len ? this.playList[index] : this.playList[0]
+                this.$store.commit('UPDATE_PLAYING_SONG', list)
                 this.$store.commit('DELETE_PLAY_PIST', index - 1)
             } else {
                 // 删除的是其他歌曲
